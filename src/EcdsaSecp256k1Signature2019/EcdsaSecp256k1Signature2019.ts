@@ -22,7 +22,7 @@ const docloader = async (url: any, options: any) => {
   return nodeDocumentLoader(url);
 };
 
-export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignature {
+export class EcdsaSecp256k1Signature2019 extends suites.LinkedDataSignature {
   proof: Record<string, any>;
   chainId: string;
   LDKeyClass: any;

@@ -1,5 +1,5 @@
 import { suites, purposes } from "jsonld-signatures";
-export declare class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignature {
+export declare class EcdsaSecp256k1Signature2019 extends suites.LinkedDataSignature {
     proof: Record<string, any>;
     chainId: string;
     LDKeyClass: any;
