@@ -13,6 +13,10 @@ export declare class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedData
         provider: any;
     });
     generateKeyPair(seed?: string): Promise<Error>;
+    ensureSuiteContext(params: {
+        document: any;
+        addSuiteContext: any;
+    }): void;
     canonicalizationHash(c14nDocument: string): Promise<string>;
     canonize(message: object, options?: {
         documentLoader?: any;
@@ -29,7 +33,7 @@ export declare class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedData
         proof: any;
     }): Promise<any>;
     createProof(options: {
-        readonly verificationMethod?: any;
+        readonly verificationMethod?: string;
         readonly date?: string | Date;
         readonly document: any;
         readonly purpose: purposes;
@@ -39,6 +43,8 @@ export declare class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedData
     verifySignature(data: {
         message: any;
         signature: string;
+        bech32Address: string;
+        pubKey: Uint8Array;
     }): Promise<boolean>;
     verifyProof(options: {
         document: any;
@@ -48,9 +54,6 @@ export declare class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedData
         verified: boolean;
         verificationMethod: {
             id: any;
-            controller: any;
-            publickeyMultibase: any;
-            type: any;
         };
     }>;
 }

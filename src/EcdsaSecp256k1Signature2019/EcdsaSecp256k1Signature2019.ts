@@ -2,6 +2,7 @@
 import { suites, purposes } from "jsonld-signatures";
 import { CONTEXTS } from "../Context/v1";
 import { verifyADR36Amino } from "@keplr-wallet/cosmos";
+import { base58btc } from "multiformats/bases/base58";
 // @ts-ignore
 import jsonld from "jsonld";
 import crypto from "crypto";
@@ -35,21 +36,23 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     provider: any;
   }) {
     super({
-      type: "EcdsaSecp256k1VerificationKey2019",
+      type: "EcdsaSecp256k1Signature2019",
     });
     this.bech32AddressPrefix = options.bech32AddressPrefix;
     this.chainId = options.chainId;
     this.cosmosProvider = options.provider;
 
     this.proof = {
-      type: "EcdsaSecp256k1VerificationKey2019",
+      type: "EcdsaSecp256k1Signature2019",
     };
     this.proofSignatureKey = "proofValue";
   }
 
-  
   async generateKeyPair(seed?: string) {
     return Error("Method not implemented");
+  }
+  ensureSuiteContext(params: { document: any; addSuiteContext: any }) {
+    return;
   }
 
   async canonicalizationHash(c14nDocument: string) {
@@ -80,8 +83,6 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     proof: any,
     documentLoader?: any
   ): Promise<Record<string, any>> {
-    console.log(proof);
-
     proof = { ...proof };
     delete proof[this.proofSignatureKey];
 
@@ -119,9 +120,7 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     return canonizeDocument;
   }
 
-
-
-  async sign(prams: { message: any ,proof:any }) {
+  async sign(prams: { message: any; proof: any }) {
     const signData = Buffer.from(prams.message);
 
     const keys = await this.cosmosProvider.getKey(this.chainId);
@@ -132,12 +131,10 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
       signData
     );
 
-
-
     return signature;
   }
   async createProof(options: {
-    readonly verificationMethod?: any;
+    readonly verificationMethod?: string;
     readonly date?: string | Date;
     readonly document: any;
     readonly purpose: purposes;
@@ -148,11 +145,10 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
 
     if (
       options.verificationMethod !== undefined &&
-      typeof options.verificationMethod !== "object"
+      typeof options.verificationMethod !== "string"
     ) {
-      throw TypeError(`"verificationMethod" must be object`);
+      throw TypeError(`"verificationMethod" must be URI string`);
     }
-
 
     let date: string | number | undefined = options.date
       ? new Date(options.date).getTime()
@@ -169,18 +165,17 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
       proof.created = date;
     }
 
-
     proof = await options.purpose.update(proof, {
       document: options.document,
       suite: this,
-      documentLoader: options.documentLoader,
+      documentLoader: options.documentLoader
+        ? options.documentLoader
+        : docloader,
       expansionMap: options.expansionMap,
     });
-    proof.verificationMethod = options.verificationMethod?.id 
-    proof.blockchainAccountId=options.verificationMethod?.blockchainAccountId
-    proof.controller = options.verificationMethod?.controller
-    proof.publickeyMultibase=options.verificationMethod?.publickeyMultibase
+    proof.verificationMethod = options.purpose.controller.id;
 
+    options.document.proof = proof;
 
     const toBeSignedDocument = {
       message: options.document,
@@ -193,8 +188,6 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
         : docloader,
     });
 
-    console.log("Get Signature");
-    
     const signature = await this.sign({
       message: canonizeDocument,
       proof,
@@ -202,16 +195,18 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     proof[this.proofSignatureKey] = signature.signature;
     return proof;
   }
-  async verifySignature(data: { message: any; signature: string }) {
-    const { bech32Address, pubKey, algo } = await this.cosmosProvider.getKey(
-      this.chainId
-    );
+  async verifySignature(data: {
+    message: any;
+    signature: string;
+    bech32Address: string;
+    pubKey: Uint8Array;
+  }) {
     const signData = Buffer.from(data.message);
     const verified = await verifyADR36Amino(
       this.bech32AddressPrefix,
-      bech32Address,
+      data.bech32Address,
       signData,
-      pubKey,
+      data.pubKey,
       new Uint8Array(Buffer.from(data.signature, "base64"))
     );
     return verified;
@@ -222,6 +217,16 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     proof: any;
     documentLoader?: any;
   }) {
+    const { verificationMethod } = options.proof;
+
+    const vm = options.document.verificationMethod.find((elm: any) => {
+      return elm.id == verificationMethod;
+    });
+    const bech32Address = vm.blockchainAccountId.split(":")[2];
+    const pubKey = base58btc.decode(vm.publicKeyMultibase);
+
+    options.document.proof = options.proof;
+
     const canonizeDocument = await this.createVerifyData({
       document: options.document,
       documentLoader: options.documentLoader
@@ -230,21 +235,18 @@ export class EcdsaSecp256k1VerificationKey2019 extends suites.LinkedDataSignatur
     });
 
     const signature = options.proof[this.proofSignatureKey];
-    const { verificationMethod  } = options.proof;
     const verified = await this.verifySignature({
       message: canonizeDocument,
       signature,
+      bech32Address,
+      pubKey,
     });
-
 
     return {
       verified,
-      verificationMethod:{
-        id: verificationMethod,
-        controller:options.proof.controller,
-        publickeyMultibase:options.proof.publickeyMultibase,
-        type:options.proof.type
-      }
-    }
+      verificationMethod: {
+        id: options.proof.verificationMethod,
+      },
+    };
   }
 }
