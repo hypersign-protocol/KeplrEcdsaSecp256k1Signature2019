@@ -1,0 +1,25 @@
+{
+  "name": "cosmos_signarbitary_adr-036signaturesuite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc -p .",
+    "start": "node dist/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@keplr-wallet/cosmos": "^0.12.75",
+    "jsonld": "^8.3.2",
+    "jsonld-signatures": "^11.2.1"
+  }
+}
