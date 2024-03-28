@@ -1,5 +1,5 @@
 {
-  "name": "cosmos_signarbitary_adr-036signaturesuite",
+  "name": "keplr-ecdsasecp256k1signature2019",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
