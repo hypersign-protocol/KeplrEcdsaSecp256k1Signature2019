@@ -122,9 +122,17 @@ export class EcdsaSecp256k1Signature2019 extends suites.LinkedDataSignature {
 
   async sign(prams: { message: any; proof: any }) {
     const signData = Buffer.from(prams.message);
+    let keys;
+    let bec32Address;
+    if (this.cosmosProvider.getKey) {
+      keys = await this.cosmosProvider.getKey(this.chainId);
+      bec32Address = keys.bech32Address;
+    } else {
+      keys = await this.cosmosProvider.getAccount(this.chainId);
+      console.log(keys);
+      bec32Address = keys.address;
+    }
 
-    const keys = await this.cosmosProvider.getKey(this.chainId);
-    const bec32Address = keys.bech32Address;
     const signature = await this.cosmosProvider.signArbitrary(
       this.chainId,
       bec32Address,
