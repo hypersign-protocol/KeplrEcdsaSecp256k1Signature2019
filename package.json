@@ -5,7 +5,7 @@
   "main": "lib/cjs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build":  " rm -rf lib && tsc -b ./tsconfig.cjs.json"
+    "build": " rm -rf lib && tsc -b ./tsconfig.cjs.json"
   },
   "author": "",
   "license": "ISC",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@keplr-wallet/cosmos": "^0.12.75",
-    "jsonld-signatures": "^9.3.1",
-    "multiformats": "^13.1.0"
+    "bs58": "^5.0.0",
+    "jsonld-signatures": "^9.3.1"
   }
 }

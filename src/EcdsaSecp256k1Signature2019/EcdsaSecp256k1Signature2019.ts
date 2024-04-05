@@ -2,7 +2,8 @@
 import { suites, purposes } from "jsonld-signatures";
 import { CONTEXTS } from "../Context/v1";
 import { verifyADR36Amino } from "@keplr-wallet/cosmos";
-import { base58btc } from "multiformats/bases/base58";
+import base58 from "bs58";
+
 // @ts-ignore
 import jsonld from "jsonld";
 import crypto from "crypto";
@@ -231,7 +232,9 @@ export class EcdsaSecp256k1Signature2019 extends suites.LinkedDataSignature {
       return elm.id == verificationMethod;
     });
     const bech32Address = vm.blockchainAccountId.split(":")[2];
-    const pubKey = base58btc.decode(vm.publicKeyMultibase);
+    const pubKey = base58.decode(
+      vm.publicKeyMultibase.substring(1, vm.publicKeyMultibase.length)
+    );
 
     options.document.proof = options.proof;
 
