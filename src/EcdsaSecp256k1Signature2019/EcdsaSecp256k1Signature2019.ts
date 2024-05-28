@@ -1,6 +1,6 @@
 // @ts-ignore
 import { suites, purposes } from "jsonld-signatures";
-import { CONTEXTS } from "../Context/v1";
+import { docloader } from "../Context/v1";
 import { verifyADR36Amino } from "@keplr-wallet/cosmos";
 import base58 from "bs58";
 
@@ -8,20 +8,8 @@ import base58 from "bs58";
 import jsonld from "jsonld";
 import crypto from "crypto";
 import { w3cDate } from "../utils";
-const nodeDocumentLoader = jsonld.documentLoader;
 
-const docloader = async (url: any, options: any) => {
-  if (url in CONTEXTS) {
-    return {
-      contextUrl: null, // this is for a context via a link header
-      document: CONTEXTS[url], // this is the actual document that was loaded
-      documentUrl: url, // this is the actual context URL after redirects
-    };
-  }
-  // call the default documentLoader
 
-  return nodeDocumentLoader(url);
-};
 
 export class EcdsaSecp256k1Signature2019 extends suites.LinkedDataSignature {
   proof: Record<string, any>;
