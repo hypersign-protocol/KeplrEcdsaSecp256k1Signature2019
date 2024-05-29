@@ -9,6 +9,7 @@ import schemaOrgContext from "../schemaOrg.json";
 import dataintegrety from "./vc-data-integrety.json";
 import ecdsasecp2020 from "./lds-ecdsa-secp256k1-recovery2020.json";
 import secp256k1v1 from "./secp256k1v1.json";
+import secp256k12019 from "./ld-ecdsa-secp256k1_2019.json";
 // Ref: https://github.com/digitalbazaar/jsonld.js/#custom-document-loader
 // @ts-ignore
 const nodeDocumentLoader = jsonld.documentLoader;
@@ -26,6 +27,7 @@ const CONTEXTS: any = Object.freeze({
   "https://w3id.org/security/suites/ed25519-2020/v1": {
     ...ed25519signature2020,
   },
+  "https://ns.did.ai/suites/secp256k1-2019/v1": { ...secp256k12019 },
   "https://w3id.org/security/v2": {
     ...securityv2,
   },
